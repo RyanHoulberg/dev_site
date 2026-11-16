@@ -5,6 +5,11 @@ const services = [
   { name: "Axum", description: "cookery", port: ":8081" },
 ];
 
+const origins = [
+  { name: "deb", detail: "home · US" },
+  { name: "Hetzner VPS", detail: "Germany" },
+];
+
 export default function ArchitectureDiagram() {
   return (
     <div className="diagram-panel">
@@ -12,20 +17,40 @@ export default function ArchitectureDiagram() {
         <div className="diagram-node">
           <div className="font-bold text-[var(--color-text)]">Cloudflare</div>
           <div className="text-[0.7rem] text-[var(--color-text-muted)]">
-            DNS + SSL + CDN
+            DNS + SSL + CDN · Tunnel
           </div>
         </div>
       </div>
 
       <div className="diagram-vline" />
 
+      <p className="mb-3 text-center text-[0.7rem] text-[var(--color-text-muted)]">
+        nearest live connector
+      </p>
+
+      <div className="mb-2 grid grid-cols-1 gap-3 sm:grid-cols-2">
+        {origins.map((origin) => (
+          <div key={origin.name} className="diagram-node-surface">
+            <div className="font-bold text-[var(--color-text)]">{origin.name}</div>
+            <div className="text-[0.7rem] text-[var(--color-text-muted)]">
+              {origin.detail}
+            </div>
+            <div className="mt-1 text-[0.65rem] italic text-[var(--color-text-muted)]">
+              cloudflared
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="diagram-vline-sm" />
+
       <div className="rounded-[var(--radius-lg)] border-2 border-[var(--color-accent)] bg-[var(--color-accent-light)] p-5">
         <div className="mb-4 text-center">
           <div className="font-bold text-[var(--color-accent-dim)]">
-            Hetzner VPS
+            same stack on both
           </div>
           <div className="text-[0.7rem] text-[var(--color-text-muted)]">
-            Germany · Docker Compose
+            Docker Compose · nginx reverse proxy
           </div>
         </div>
 
@@ -33,7 +58,7 @@ export default function ArchitectureDiagram() {
           <div className="diagram-node-surface">
             <div className="font-bold text-[var(--color-text)]">nginx</div>
             <div className="text-[0.7rem] text-[var(--color-text-muted)]">
-              reverse proxy · SSL termination
+              site-origin · routes /projects/*
             </div>
           </div>
         </div>
@@ -66,18 +91,25 @@ export default function ArchitectureDiagram() {
         </div>
 
         <p className="mt-4 rounded-[var(--radius-sm)] border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 text-center text-[0.7rem] text-[var(--color-text-muted)]">
-          shared design tokens served by nginx at /shared/styles.css
+          shared design tokens at /shared/styles.css
         </p>
       </div>
 
-      <div className="mt-4 flex flex-wrap items-center justify-center gap-2 text-[0.75rem] text-[var(--color-text-muted)]">
-        <span>push to main</span>
-        <span className="text-[var(--color-border)]">&rarr;</span>
-        <span>GitHub Actions</span>
-        <span className="text-[var(--color-border)]">&rarr;</span>
-        <span>SSH deploy</span>
-        <span className="text-[var(--color-border)]">&rarr;</span>
-        <span>docker compose up</span>
+      <div className="mt-4 flex flex-col items-center gap-1.5 text-[0.75rem] text-[var(--color-text-muted)]">
+        <div className="flex flex-wrap items-center justify-center gap-2">
+          <span>push to main</span>
+          <span className="text-[var(--color-border)]">&rarr;</span>
+          <span>GitHub Actions</span>
+          <span className="text-[var(--color-border)]">&rarr;</span>
+          <span>VPS</span>
+        </div>
+        <div className="flex flex-wrap items-center justify-center gap-2">
+          <span>push to main</span>
+          <span className="text-[var(--color-border)]">&rarr;</span>
+          <span>deb pull (~2 min)</span>
+          <span className="text-[var(--color-border)]">&rarr;</span>
+          <span>docker compose up</span>
+        </div>
       </div>
     </div>
   );
